@@ -11,8 +11,9 @@ const webcamPort = 0;
 function detectFaces(img) {
   // restrict minSize and scaleFactor for faster processing
   const options = {
-    minSize: new cv.Size(100, 100),
+    minSize: new cv.Size(5, 5),
     scaleFactor: 1.2,
+    // scaleFactor: 1.5,
     minNeighbors: 10
   };
   return classifier.detectMultiScale(img.bgrToGray(), options).objects;
