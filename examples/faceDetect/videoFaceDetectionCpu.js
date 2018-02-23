@@ -1,22 +1,23 @@
 const {
-  cv
+  cv,
+  getDataFilePath
 } = require('../utils');
 
 const { runVideoFaceDetection } = require('./commons');
 
-const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
+const videoFile = getDataFilePath('people.mp4');
 
-const webcamPort = 0;
+const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 
 function detectFaces(img) {
   // restrict minSize and scaleFactor for faster processing
   const options = {
-    minSize: new cv.Size(5, 5),
-    scaleFactor: 1.2,
-    // scaleFactor: 1.5,
+    // minSize: new cv.Size(40, 40),
+    // scaleFactor: 1.2,
+    scaleFactor: 1.1,
     minNeighbors: 10
   };
   return classifier.detectMultiScale(img.bgrToGray(), options).objects;
 }
 
-runVideoFaceDetection(webcamPort, detectFaces);
+runVideoFaceDetection(videoFile, detectFaces);

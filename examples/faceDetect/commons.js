@@ -17,27 +17,27 @@ wss.on('connection', function connection(ws) {
 
 });
 
+exports.runVideoFaceDetection = (src, detectFaces) => grabFrames(src, 1, (frame) => {
+    console.time('detection time');
+    const frameResized = frame.resize(720, 1280);
 
-exports.runVideoFaceDetection = (src, detectFaces) => {
-    grabFrames(src, 1, (frame) => {
-        console.time('detection time');
-        const frameResized = frame.resize(720, 1280);
-        // detect faces
-        const faceRects = detectFaces(frameResized);
-        if (faceRects.length) {
-            const facesAsString = JSON.stringify({faces: faceRects});
-            wss.clients.forEach(function each(client) {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(facesAsString);
-                }
-            });
-            // draw detection
-            faceRects.forEach(faceRect => drawBlueRect(frameResized, faceRect));
-        }
-        cv.imshow('face detection', frameResized);
-        console.timeEnd('detection time');
-    });
-};
+    // detect faces
+    const faceRects = detectFaces(frameResized);
+    if (faceRects.length) {
+        const facesAsString = JSON.stringify({faces: faceRects});
+        wss.clients.forEach(function each(client) {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(facesAsString);
+            }
+        });
+
+        // draw detection
+        faceRects.forEach(faceRect => drawBlueRect(frameResized, faceRect));
+    }
+
+    cv.imshow('face detection', frameResized);
+    console.timeEnd('detection time');
+});
 
 function classifyImg(net, img) {
     // facenet model works with 300 x 300 images
