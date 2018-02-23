@@ -19,7 +19,7 @@ wss.on('connection', function connection(ws) {
 
 exports.runVideoFaceDetection = (src, detectFaces) => grabFrames(src, 1, (frame) => {
     console.time('detection time');
-    const frameResized = frame.resizeToMax(1280);
+    const frameResized = frame.resize(720, 1280);
 
     // detect faces
     const faceRects = detectFaces(frameResized);
