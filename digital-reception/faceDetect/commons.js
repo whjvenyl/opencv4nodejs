@@ -20,9 +20,9 @@ exports.runVideoFaceDetection = (src, detectFaces) => grabFrames(src, 1, (frame)
     const frameResized = frame.resize(720, 1280);
 
     // detect faces
-    const faceRects = detectFaces(frameResized);
-    if (faceRects.length) {
-        const facesAsString = JSON.stringify({faces: faceRects});
+    const faceRectangles = detectFaces(frameResized);
+    if (faceRectangles.length) {
+        const facesAsString = JSON.stringify({faces: faceRectangles});
         wss.clients.forEach(function each(client) {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(facesAsString);
@@ -30,7 +30,7 @@ exports.runVideoFaceDetection = (src, detectFaces) => grabFrames(src, 1, (frame)
         });
 
         // draw detection
-        faceRects.forEach(faceRect => drawBlueRect(frameResized, faceRect));
+        faceRectangles.forEach(faceRect => drawBlueRect(frameResized, faceRect));
     }
 
     cv.imshow('face detection', frameResized);
