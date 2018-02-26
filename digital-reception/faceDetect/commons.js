@@ -15,7 +15,11 @@ wss.on('connection', function connection(ws) {
 
 });
 
-exports.runVideoFaceDetection = (src, detectFaces) => grabFrames(src, 1, (frame) => {
+/*
+* @param MINFACEDETECTEXECUTIONTIME (optional)  :   Schedules the execution of the detection to at least take the specified time (limit the FPS)
+*                                                   in order to limit CPU utiliziation
+*/
+exports.runVideoFaceDetection = (src, detectFaces, MINFACEDETECTEXECUTIONTIME) => grabFrames(src, 1, (frame) => {
     console.time('detection time');
     const frameResized = frame.resize(720, 1280);
 
@@ -35,7 +39,7 @@ exports.runVideoFaceDetection = (src, detectFaces) => grabFrames(src, 1, (frame)
 
     cv.imshow('face detection', frameResized);
     console.timeEnd('detection time');
-});
+}, MINFACEDETECTEXECUTIONTIME);
 
 function classifyImg(net, img) {
     // facenet model works with 300 x 300 images

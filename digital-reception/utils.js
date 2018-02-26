@@ -4,30 +4,71 @@ const cv = require('../');
 
 exports.cv = cv;
 
+let lastExecutionTime = 0;
+
 const dataPath = path.resolve(__dirname, '../data');
 exports.dataPath = dataPath;
 exports.getDataFilePath = fileName => path.resolve(dataPath, fileName);
 
-exports.grabFrames = (videoFile, delay, onFrame) => {
+/*
+* @param delay  : specifies how long the image is displayed (image stays until next image displayed)
+*/
+exports.grabFrames = (videoFile, delay, onFrame, MINFACEDETECTEXECUTIONTIME) => {
     const cap = new cv.VideoCapture(videoFile);
-    let done = false;
-    const intvl = setInterval(() => {
+    // run detection as fast as possible (high CPU utilization!)
+    if (!MINFACEDETECTEXECUTIONTIME) {
+        let done = false;
+        const intvl = setInterval(() => {
+            let frame = cap.read();
+            // loop back to start on end of stream reached
+            if (frame.empty) {
+                cap.reset();
+                frame = cap.read();
+            }
+            onFrame(frame);
+
+            const key = cv.waitKey(delay);
+            done = key !== -1 && key !== 255;
+            if (done) {
+                clearInterval(intvl);
+                console.log('Key pressed, exiting.');
+            }
+        }, 0);
+    } else {
+        _readAndDetect(cap, delay, onFrame, MINFACEDETECTEXECUTIONTIME);
+    }
+};
+
+
+function _readAndDetect(cap, delay, onFrame, MINFACEDETECTEXECUTIONTIME) {
+    const timeLeft = MINFACEDETECTEXECUTIONTIME - lastExecutionTime;
+    const detectionDelay = timeLeft > 0 ? timeLeft : 0;
+    console.log('detection delay', detectionDelay);
+    setTimeout(() => {
+        let done = false;
         let frame = cap.read();
         // loop back to start on end of stream reached
         if (frame.empty) {
             cap.reset();
             frame = cap.read();
         }
+
+        const startTime = new Date();
         onFrame(frame);
+        const endTime = new Date();
+        lastExecutionTime = endTime - startTime;
+        console.log('last execution time was', lastExecutionTime);
 
         const key = cv.waitKey(delay);
         done = key !== -1 && key !== 255;
         if (done) {
-            clearInterval(intvl);
             console.log('Key pressed, exiting.');
+            process.exit();
+
         }
-    }, 0);
-};
+        _readAndDetect(cap, delay, onFrame, MINFACEDETECTEXECUTIONTIME);
+    }, detectionDelay);
+}
 
 exports.drawRectAroundBlobs = (binaryImg, dstImg, minPxSize, fixedRectWidth) => {
     const {

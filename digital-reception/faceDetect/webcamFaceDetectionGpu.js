@@ -8,6 +8,8 @@ const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 
 const webcamPort = 0;
 const MINSIZE = 40;
+const MAXFPS = 7;
+const MINFACEDETECTEXECUTIONTIME = 1000 / MAXFPS;
 
 function detectFaces(img) {
     // restrict minSize and scaleFactor for faster processing
@@ -19,4 +21,4 @@ function detectFaces(img) {
     return classifier.detectMultiScaleGpu(img.bgrToGray(), options);
 }
 
-runVideoFaceDetection(webcamPort, detectFaces);
+runVideoFaceDetection(webcamPort, detectFaces, MINFACEDETECTEXECUTIONTIME);
