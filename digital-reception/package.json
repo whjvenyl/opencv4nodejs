@@ -3,6 +3,9 @@
   "version": "1.1.0",
   "author": "justadudewhohacks",
   "license": "ISC",
+  "scripts": {
+    "server": "node faceDetect/webcamFaceDetectionCpu.js"
+  },
   "dependencies": {},
   "devDependencies": {
     "eslint": "^3.18.0",
